@@ -197,7 +197,7 @@ Validates that the model has been trained and is ready for generation.
 - **Generation Time**: O(l) where l is output length
 - **Recommended Dataset Size**: 50-1000 samples for optimal performance/quality balance
 
-## Testing and Validation
+## Testing Example
 
 ### Unit Test Example
 
@@ -213,17 +213,6 @@ func test_generator_basic_functionality():
     assert(name.length() > 0 and name.length() <= 10)
 ```
 
-### Statistical Validation
-
-```gdscript
-func analyze_generation_distribution(sample_size: int = 100):
-    var lengths = []
-    for i in range(sample_size):
-        lengths.append(generator.generate_name().length())
-    
-    var avg_length = lengths.reduce(func(a, b): return a + b) / lengths.size()
-    print("Average generated length: ", avg_length)
-```
 
 ## Troubleshooting
 
