@@ -237,13 +237,3 @@ func analyze_generation_distribution(sample_size: int = 100):
 ## License
 
 This project is licensed under the MIT License. See LICENSE file for complete terms.
-
----
-
-<div align="center">
-
-**Technical documentation for MarkovNameGenerator v1.0.0**
-
-[Documentation](https://docs.example.com) • [API Reference](https://api.example.com) • [Issue Tracker](https://github.com/example/issues)
-
-</div>
