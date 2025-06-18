@@ -232,7 +232,7 @@ func analyze_generation_distribution(sample_size: int = 100):
 | Empty generation | Insufficient training data | Increase dataset size (>25 samples) |
 | Identical outputs | Deterministic seed reuse | Randomize seed or call `rng.randomize()` |
 | JSON parse errors | Malformed dataset files | Validate JSON syntax and array structure |
-| Memory usage | Large datasets with high order | Reduce n-gram order or dataset size |
+| Memory usage | Large datasets with high n_length | Reduce n-gram n_length or dataset size |
 
 ## License
 
