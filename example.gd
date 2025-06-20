@@ -19,7 +19,7 @@ func _ready()->void:
 	print(stars_name_generator.get_statistics())
 	
 	#generate a batch of 20 names to test it out
-	for _ii in 20:
+	for _ii in range(20):
 		print(stars_name_generator.generate_name(12))
 	
 	# now save the pre-trained model
@@ -31,5 +31,5 @@ func _ready()->void:
 	another_stars_name_generator.load_trained_model("res://addons/markov-name-generator/models/new_star_names_model.json")
 	
 	#generate a batch of 20 names to test the loaded model
-	for _ii in 20:
+	for _ii in range(20):
 		print(another_stars_name_generator.generate_name(12))

@@ -1,217 +1,330 @@
 # MarkovNameGenerator
 
-<div align="center">
+A robust GDScript implementation of a Markov chain-based name generator for Godot 4.x. This class analyzes existing name datasets to learn statistical patterns and generates new, realistic names that follow the same linguistic characteristics as the training data.
 
-![Godot Engine](https://img.shields.io/badge/Godot-4.0+-blue?logo=godot-engine\&logoColor=white)
-![GDScript](https://img.shields.io/badge/GDScript-Ready-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
-![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen)
+## Features
 
-*Character-level Markov chain implementation for procedural name generation in GDScript*
-
-</div>
-
-## Overview
-
-**MarkovNameGenerator** is a GDScript class that implements a character-level Markov chain for procedural name and string generation. It supports training from JSON datasets, saving/loading pretrained models, and provides detailed statistics.
-
-**Use cases:**
-
-* Procedural name generation for NPCs, places, items
-* Dynamic content generation in games
-* Automatic generation of linguistically consistent strings
-* Reusable model creation from datasets
+- **Markov Chain Analysis**: Implements n-gram based character sequence analysis
+- **Flexible N-gram Length**: Configurable sequence length for varying coherence vs. variety
+- **JSON Dataset Support**: Easy loading and processing of name datasets
+- **Model Persistence**: Save and load trained models for reuse
+- **Deterministic Generation**: Seed-based random number generation for reproducible results
+- **Quality Control**: Configurable minimum/maximum name lengths with retry logic
+- **Comprehensive Statistics**: Detailed model metrics and training information
+- **Error Handling**: Robust validation and error reporting throughout
 
 ## Installation
 
-1. Copy `MarkovNameGenerator.gd` to your Godot project directory
-2. The class is immediately usable
-3. No external dependencies required
+1. Copy `MarkovNameGenerator.gd` to your Godot project
+2. The class extends `RefCounted` and uses `class_name`, making it available globally
+3. Prepare your name datasets as JSON arrays (see Dataset Format below)
+
+## Quick Start
+
+```gdscript
+# Create and configure generator
+var generator = MarkovNameGenerator.new()
+generator.set_dataset_path("res://data/names/")
+
+# Load dataset and train model
+if generator.load_dataset("fantasy_names"):
+	generator.train(2)  # Use 2-character n-grams
+	
+	# Generate names
+	for i in range(10):
+		print(generator.generate_name())
+```
 
 ## Dataset Format
 
-Datasets must be JSON files containing an array of strings:
+Datasets should be JSON files containing arrays of strings:
 
 ```json
 [
-  "Alexander",
-  "Katherine",
-  "Sebastian",
-  "Isabella"
+	"Gandalf",
+	"Aragorn",
+	"Legolas",
+	"Gimli",
+	"Boromir",
+	"Frodo"
 ]
-```
-
-**Requirements:**
-
-* Valid JSON array
-* String values only
-* At least 50 entries recommended for decent results
-
-## Usage Example
-
-### Training and generation
-
-```gdscript
-var gen = MarkovNameGenerator.new("res://datasets/")
-if gen.load_dataset("sample_names"):
-	gen.train(2)
-	var name = gen.generate_name(12, 3)
-	print("Generated:", name)
-```
-
-### Deterministic output
-
-```gdscript
-gen.set_seed(12345)
-var name = gen.generate_name()
-```
-
-### Save and load model
-
-```gdscript
-gen.save_model("res://models/names.model")
-# ...later
-var gen2 = MarkovNameGenerator.new("res://datasets/")
-gen2.load_model("res://models/names.model")
-print(gen2.generate_name())
-```
-
-### Model statistics
-
-```gdscript
-var stats = gen.get_statistics()
-print(stats)
-# Output: { "n_gram_len": 2, "entries": 500, "unique_ngrams": 2187, ... }
 ```
 
 ## API Reference
 
-### Class Definition
+### Properties
 
-```gdscript
-class_name MarkovNameGenerator
-extends RefCounted
-```
+| Property | Type | Description |
+|----------|------|-------------|
+| `path` | String | Base path for dataset files |
+| `chain` | Dictionary | Markov chain transition probabilities |
+| `n_length` | int | Length of n-grams (default: 2) |
+| `starters` | Array | Valid n-grams for starting name generation |
+| `dataset` | Array | Currently loaded dataset |
+| `rng` | RandomNumberGenerator | Internal RNG instance |
 
-### Constructor
+### Static Properties
 
-```gdscript
-MarkovNameGenerator.new(dataset_path: String)
-```
+| Property | Type | Description |
+|----------|------|-------------|
+| `version` | String | Library version ("0.1.0") |
 
 ### Methods
 
-#### Core
+#### Constructor and Configuration
 
 ```gdscript
-load_dataset(dataset_name: String) -> bool
+MarkovNameGenerator.new() -> MarkovNameGenerator
 ```
-
-Loads a JSON dataset from the given directory (omit `.json` extension).
+Creates a new generator instance with randomized seed.
 
 ```gdscript
-train(n_gram_len: int = 2) -> void
+set_dataset_path(data_path: String) -> void
 ```
-
-Trains the Markov chain model.
-
-```gdscript
-generate_name(max_length: int = 12, min_length: int = 3) -> String
-```
-
-Generates a name based on the trained model.
-
-```gdscript
-is_trained() -> bool
-```
-
-Returns true if the model is trained or a model is loaded.
-
-#### Model Persistence
-
-```gdscript
-save_model(file_path: String) -> bool
-```
-
-Saves the trained model to a `.model` file.
-
-```gdscript
-load_model(file_path: String) -> bool
-```
-
-Loads a previously saved model from file.
-
-#### Utilities
+Sets the base path for dataset files.
 
 ```gdscript
 set_seed(seed: int) -> void
 ```
+Sets a specific seed for deterministic generation.
 
-Sets the random seed for deterministic output.
+#### Dataset Management
 
 ```gdscript
-reset() -> void
+load_dataset(dataset_name: String) -> bool
+```
+Loads a JSON dataset file. Returns `true` on success.
+
+**Parameters:**
+- `dataset_name`: Filename without .json extension
+
+**Example:**
+```gdscript
+if generator.load_dataset("elvish_names"):
+	print("Dataset loaded successfully")
+else:
+	print("Failed to load dataset")
 ```
 
-Clears internal state, dataset, and model.
+#### Training
+
+```gdscript
+train(n_gram_len: int = 2) -> void
+```
+Trains the Markov chain on the loaded dataset.
+
+**Parameters:**
+- `n_gram_len`: Length of character sequences to analyze (1-5 recommended)
+
+**N-gram Length Effects:**
+- **1**: Maximum variety, less coherent
+- **2**: Good balance (recommended)
+- **3**: More coherent, less variety
+- **4+**: High coherence, limited variety
+
+#### Generation
+
+```gdscript
+generate_name(max_length: int = 12, min_length: int = 3) -> String
+```
+Generates a new name using the trained model.
+
+**Parameters:**
+- `max_length`: Maximum characters in generated name
+- `min_length`: Minimum characters (triggers retry logic)
+
+**Returns:** Properly capitalized name string
+
+```gdscript
+_generate_single_name(max_length: int = 12) -> String
+```
+Internal method for single generation attempt without retry logic.
+
+#### Model Persistence
+
+```gdscript
+save_trained_model(filepath: String) -> bool
+```
+Saves the trained model to a JSON file.
+
+**Parameters:**
+- `filepath`: Full path including filename and extension
+
+**Example:**
+```gdscript
+if generator.save_trained_model("user://models/fantasy_model.json"):
+	print("Model saved successfully")
+```
+
+```gdscript
+load_trained_model(filepath: String) -> bool
+```
+Loads a pre-trained model from a JSON file.
+
+**Parameters:**
+- `filepath`: Full path to the model file
+
+**Example:**
+```gdscript
+var generator = MarkovNameGenerator.new()
+if generator.load_trained_model("user://models/fantasy_model.json"):
+	var name = generator.generate_name()
+	print("Generated: " + name)
+```
+
+#### Utility Methods
+
+```gdscript
+is_trained() -> bool
+```
+Checks if the model has been trained and is ready for generation.
 
 ```gdscript
 get_statistics() -> Dictionary
 ```
+Returns basic training statistics.
 
-Returns model statistics such as dataset size, n-gram count, average entry length, etc.
-
-### Properties
-
-| Property   | Type                    | Description                        |
-| ---------- | ----------------------- | ---------------------------------- |
-| `path`     | `String`                | Dataset directory path             |
-| `chain`    | `Dictionary`            | N-gram transition dictionary       |
-| `n_length` | `int`                   | Current n-gram order               |
-| `starters` | `Array`                 | Valid sequence starters            |
-| `dataset`  | `Array`                 | Loaded dataset                     |
-| `rng`      | `RandomNumberGenerator` | Internal random generator instance |
-
-## N-gram Order Effects
-
-| Order | Coherence | Creativity | Complexity |
-| ----- | --------- | ---------- | ---------- |
-| 1     | Low       | High       | Minimal    |
-| 2     | Good      | Moderate   | Low        |
-| 3     | High      | Low        | Medium     |
-| 4+    | Very High | Very Low   | High       |
-
-## Performance
-
-### Complexity
-
-* **Memory:** O(n × m × k)
-* **Training:** O(n × m × k)
-* **Generation:** O(l)
-
-### Average timings
-
-```
-Small (100 names, n=2):     ~1ms
-Medium (500 names, n=2):    ~5ms
-Large (2000 names, n=3):    ~50ms
-generate_name(12):          ~0.2ms
+**Returns:**
+```gdscript
+{
+	"is_trained": bool,
+	"total_ngrams": int,
+	"starters_count": int,
+	"n_length": int,
+	"dataset_size": int
+}
 ```
 
-## Troubleshooting
+```gdscript
+get_model_statistics() -> Dictionary
+```
+Returns detailed model statistics including transition averages.
 
-| Issue             | Cause                          | Solution                             |
-| ----------------- | ------------------------------ | ------------------------------------ |
-| Empty output      | Insufficient training data     | Add more entries to the dataset      |
-| Identical output  | Fixed seed used                | Use `rng.randomize()` or change seed |
-| JSON parse error  | Malformed dataset              | Validate JSON syntax                 |
-| High memory usage | Large dataset or high n-gram   | Reduce n-gram size or dataset        |
-| Load failed       | File not found or incompatible | Check file path and format           |
+**Returns:**
+```gdscript
+{
+	"is_trained": bool,
+	"n_length": int,
+	"total_ngrams": int,
+	"starters_count": int,
+	"dataset_size": int,
+	"average_transitions_per_ngram": float
+}
+```
+
+## Advanced Usage
+
+### Multiple Datasets
+
+```gdscript
+var generator = MarkovNameGenerator.new()
+generator.set_dataset_path("res://data/")
+
+# Load and combine multiple datasets
+var datasets = ["human_names", "elvish_names", "dwarvish_names"]
+var combined_data = []
+
+for dataset_name in datasets:
+	generator.load_dataset(dataset_name)
+	combined_data.append_array(generator.dataset)
+
+generator.dataset = combined_data
+generator.train(2)
+```
+
+### Deterministic Generation
+
+```gdscript
+var generator = MarkovNameGenerator.new()
+generator.set_seed(12345)  # Reproducible results
+
+generator.load_dataset("names")
+generator.train(2)
+
+# These will always generate the same sequence
+for i in range(5):
+	print(generator.generate_name())
+```
+
+### Model Reuse
+
+```gdscript
+# Train once, save model
+var trainer = MarkovNameGenerator.new()
+trainer.set_dataset_path("res://data/")
+trainer.load_dataset("large_dataset")
+trainer.train(3)
+trainer.save_trained_model("user://models/trained_model.json")
+
+# Later, load pre-trained model
+var generator = MarkovNameGenerator.new()
+generator.load_trained_model("user://models/trained_model.json")
+
+# Ready to generate immediately
+var name = generator.generate_name()
+```
+
+### Custom Generation Parameters
+
+```gdscript
+# Generate longer names
+var long_name = generator.generate_name(20, 8)
+
+# Generate shorter names
+var short_name = generator.generate_name(8, 2)
+
+# Get statistics to tune parameters
+var stats = generator.get_model_statistics()
+print("Average transitions per n-gram: ", stats.average_transitions_per_ngram)
+```
+
+## Error Handling
+
+The class provides comprehensive error handling with descriptive messages:
+
+```gdscript
+var generator = MarkovNameGenerator.new()
+
+# This will trigger error messages
+if not generator.load_dataset("nonexistent_file"):
+	print("Dataset loading failed")
+
+if not generator.save_trained_model(""):
+	print("Invalid filepath")
+
+# Check training status
+if not generator.is_trained():
+	print("Model not trained - call train() first")
+```
+
+## Performance Considerations
+
+- **Dataset Size**: Larger datasets improve quality but increase training time
+- **N-gram Length**: Higher values require more memory but may improve coherence
+- **Model Size**: Trained models scale with dataset size and n-gram length
+- **Generation Speed**: Typically very fast (< 1ms per name)
+
+## File Structure
+
+```
+your_project/
+├── MarkovNameGenerator.gd
+├── data/
+│   ├── fantasy_names.json
+│   ├── modern_names.json
+│   └── historical_names.json
+└── models/
+    ├── fantasy_trained.json
+    └── modern_trained.json
+```
+
+## Requirements
+
+- Godot 4.x
+- JSON dataset files
+- File system access for model persistence
 
 ## License
 
-MIT License — free use and modification with attribution.
+MIT License (see LICENCE.txt for full licence text)
 
----
-
-> Last updated: v1.1.0 — added support for persistent models, internal statistics, and advanced n-grams
