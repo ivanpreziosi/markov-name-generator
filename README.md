@@ -1,12 +1,11 @@
-
 # MarkovNameGenerator
 
 <div align="center">
 
-![Godot Engine](https://img.shields.io/badge/Godot-4.0+-blue?logo=godot-engine&logoColor=white)
+![Godot Engine](https://img.shields.io/badge/Godot-4.0+-blue?logo=godot-engine\&logoColor=white)
 ![GDScript](https://img.shields.io/badge/GDScript-Ready-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
-![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen)
+![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen)
 
 *Character-level Markov chain implementation for procedural name generation in GDScript*
 
@@ -14,23 +13,24 @@
 
 ## Overview
 
-**MarkovNameGenerator** is a GDScript implementation of a character-level Markov chain designed for procedural name generation. The class analyzes character sequence patterns in training datasets to build probabilistic models for generating statistically similar output strings.
+**MarkovNameGenerator** is a GDScript class that implements a character-level Markov chain for procedural name and string generation. It supports training from JSON datasets, saving/loading pretrained models, and provides detailed statistics.
 
-**Applications:**
-- Procedural name generation for NPCs, locations, and entities
-- Dynamic content creation for games and interactive applications
-- Automated text generation following learned linguistic patterns
-- Randomized content with controllable stylistic coherence
+**Use cases:**
+
+* Procedural name generation for NPCs, places, items
+* Dynamic content generation in games
+* Automatic generation of linguistically consistent strings
+* Reusable model creation from datasets
 
 ## Installation
 
-1. Copy `MarkovNameGenerator.gd` to your project's script directory
-2. The class is immediately available for instantiation
-3. No external dependencies or additional configuration required
+1. Copy `MarkovNameGenerator.gd` to your Godot project directory
+2. The class is immediately usable
+3. No external dependencies required
 
-## Dataset Specification
+## Dataset Format
 
-Training datasets must be provided as JSON files containing arrays of strings:
+Datasets must be JSON files containing an array of strings:
 
 ```json
 [
@@ -42,247 +42,176 @@ Training datasets must be provided as JSON files containing arrays of strings:
 ```
 
 **Requirements:**
-- Valid JSON array format
-- String elements only
-- Minimum 50 samples recommended for statistical significance
 
-## Implementation
+* Valid JSON array
+* String values only
+* At least 50 entries recommended for decent results
 
-### Basic Implementation
+## Usage Example
 
-```gdscript
-var generator = MarkovNameGenerator.new("res://datasets/")
-
-if generator.load_dataset("sample_names"):
-    generator.train(2)  # Configure n-gram order
-    
-    var generated_name = generator.generate_name(12,3)  # Max length parameter, Min length parameter
-    print("Generated: ", generated_name)
-else:
-    push_error("Dataset loading failed")
-```
-
-### Deterministic Output
+### Training and generation
 
 ```gdscript
-generator.set_seed(12345)
-var name = generator.generate_name()  # Reproducible output
+var gen = MarkovNameGenerator.new("res://datasets/")
+if gen.load_dataset("sample_names"):
+	gen.train(2)
+	var name = gen.generate_name(12, 3)
+	print("Generated:", name)
 ```
 
-## N-gram Order Analysis
-
-The n-gram order parameter controls the length of character sequences analyzed during training, directly affecting output characteristics:
-
-| Order | Sequence Type | Coherence | Creativity | Computational Cost |
-|-------|---------------|-----------|------------|-------------------|
-| 1 | Unigram | Low | High | Minimal |
-| 2 | Bigram | Balanced | Moderate | Low |
-| 3 | Trigram | High | Low | Moderate |
-| 4+ | Higher-order | Maximum | Minimal | High |
-
-### Statistical Behavior
-
-- **Order 1**: High entropy, minimal pattern constraints
-- **Order 2**: Optimal balance for most applications, maintains phonetic coherence
-- **Order 3+**: Increased pattern fidelity, potential for training data reproduction
+### Deterministic output
 
 ```gdscript
-# Low coherence, high variance
-generator.train(1)
-
-# Recommended: balanced statistical properties  
-generator.train(2)
-
-# High coherence, low variance
-generator.train(3)
+gen.set_seed(12345)
+var name = gen.generate_name()
 ```
 
-## Advanced Usage
-
-### Multi-Dataset Implementation
+### Save and load model
 
 ```gdscript
-	var people_name_generator = MarkovNameGenerator.new("res://datasets/")
-	people_name_generator.load_dataset("people_names")
-	people_name_generator.train()
-	
-	var stars_name_generator = MarkovNameGenerator.new("res://datasets/")
-	stars_name_generator.load_dataset("star_names")
-	stars_name_generator.train()
+gen.save_model("res://models/names.model")
+# ...later
+var gen2 = MarkovNameGenerator.new("res://datasets/")
+gen2.load_model("res://models/names.model")
+print(gen2.generate_name())
 ```
 
+### Model statistics
+
+```gdscript
+var stats = gen.get_statistics()
+print(stats)
+# Output: { "n_gram_len": 2, "entries": 500, "unique_ngrams": 2187, ... }
+```
 
 ## API Reference
 
 ### Class Definition
+
 ```gdscript
 class_name MarkovNameGenerator
 extends RefCounted
 ```
 
 ### Constructor
+
 ```gdscript
 MarkovNameGenerator.new(dataset_path: String)
 ```
-Initializes the generator with the specified dataset directory path.
-
-**Parameters:**
-- `dataset_path`: File system path to directory containing JSON datasets
 
 ### Methods
 
-#### Core Functionality
+#### Core
 
 ```gdscript
 load_dataset(dataset_name: String) -> bool
 ```
-Loads and parses a JSON dataset file.
 
-**Parameters:**
-- `dataset_name`: Filename without extension
-
-**Returns:** Boolean indicating load success
-
----
+Loads a JSON dataset from the given directory (omit `.json` extension).
 
 ```gdscript
 train(n_gram_len: int = 2) -> void
 ```
-Constructs the Markov chain from loaded dataset.
 
-**Parameters:**
-- `n_gram_len`: N-gram sequence length (default: 2)
-
----
+Trains the Markov chain model.
 
 ```gdscript
-generate_name(max_length: int = 12) -> String
+generate_name(max_length: int = 12, min_length: int = 3) -> String
 ```
-Generates a new name using the trained model.
 
-**Parameters:**
-- `max_length`: Maximum character length for output
-
-**Returns:** Generated name string
-
-#### Utility Functions
-
-```gdscript
-set_seed(seed: int) -> void
-```
-Configures deterministic seed for reproducible generation.
+Generates a name based on the trained model.
 
 ```gdscript
 is_trained() -> bool
 ```
-Validates that the model has been trained and is ready for generation.
+
+Returns true if the model is trained or a model is loaded.
+
+#### Model Persistence
+
+```gdscript
+save_model(file_path: String) -> bool
+```
+
+Saves the trained model to a `.model` file.
+
+```gdscript
+load_model(file_path: String) -> bool
+```
+
+Loads a previously saved model from file.
+
+#### Utilities
+
+```gdscript
+set_seed(seed: int) -> void
+```
+
+Sets the random seed for deterministic output.
+
+```gdscript
+reset() -> void
+```
+
+Clears internal state, dataset, and model.
+
+```gdscript
+get_statistics() -> Dictionary
+```
+
+Returns model statistics such as dataset size, n-gram count, average entry length, etc.
 
 ### Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `path` | `String` | Dataset directory path |
-| `chain` | `Dictionary` | N-gram to character transition mappings |
-| `n_length` | `int` | Current n-gram sequence length |
-| `starters` | `Array` | Valid sequence starters for generation initialization |
-| `dataset` | `Array` | Loaded training data |
-| `rng` | `RandomNumberGenerator` | Internal randomization instance |
+| Property   | Type                    | Description                        |
+| ---------- | ----------------------- | ---------------------------------- |
+| `path`     | `String`                | Dataset directory path             |
+| `chain`    | `Dictionary`            | N-gram transition dictionary       |
+| `n_length` | `int`                   | Current n-gram order               |
+| `starters` | `Array`                 | Valid sequence starters            |
+| `dataset`  | `Array`                 | Loaded dataset                     |
+| `rng`      | `RandomNumberGenerator` | Internal random generator instance |
 
-## Performance Considerations
+## N-gram Order Effects
 
-### Memory Complexity: O(n×m×k)
+| Order | Coherence | Creativity | Complexity |
+| ----- | --------- | ---------- | ---------- |
+| 1     | Low       | High       | Minimal    |
+| 2     | Good      | Moderate   | Low        |
+| 3     | High      | Low        | Medium     |
+| 4+    | Very High | Very Low   | High       |
 
-The memory footprint grows based on three factors:
-- **n**: Number of names in dataset
-- **m**: Average length of names in dataset  
-- **k**: N-gram order (sequence length)
+## Performance
 
-**Example Analysis:**
+### Complexity
+
+* **Memory:** O(n × m × k)
+* **Training:** O(n × m × k)
+* **Generation:** O(l)
+
+### Average timings
+
 ```
-Dataset: 500 names, average length 8 characters, order=2
-Theoretical n-grams: 500 × (8-2+1) × 1 = 3,500 n-grams
-Actual storage: ~2,000-2,500 unique n-grams (due to overlap)
-Memory per n-gram: ~50-100 bytes (key + array of transitions)
-Total memory: ~100-250 KB
+Small (100 names, n=2):     ~1ms
+Medium (500 names, n=2):    ~5ms
+Large (2000 names, n=3):    ~50ms
+generate_name(12):          ~0.2ms
 ```
-
-**Memory scaling by order:**
-- Order 1: Minimal (26 letters × transitions)
-- Order 2: Moderate (~100-1000 unique bigrams typical)
-- Order 3+: Exponential growth (most trigrams appear once)
-
-### Training Time Complexity: O(n×m×k)
-
-Training processes every character position in every name:
-- **n**: Each name must be analyzed
-- **m**: Each character position generates an n-gram
-- **k**: N-gram extraction and dictionary operations
-
-**Practical Performance:**
-```
-Small dataset (100 names, avg 6 chars, order=2): ~1ms
-Medium dataset (500 names, avg 8 chars, order=2): ~5-10ms  
-Large dataset (2000 names, avg 10 chars, order=3): ~50-100ms
-```
-
-### Generation Time Complexity: O(l)
-
-Generation is linear with output length:
-- Each character requires one dictionary lookup
-- Dictionary access is O(1) average case
-- **l**: Desired output length
-
-**Generation Performance:**
-```gdscript
-# Typical generation times (order=2, trained model)
-generate_name(6):   ~0.1ms  # Short names
-generate_name(12):  ~0.2ms  # Medium names  
-generate_name(20):  ~0.3ms  # Long names
-```
-
-### Dataset Size Recommendations
-
-| Dataset Size | Quality | Performance | Use Case |
-|--------------|---------|-------------|----------|
-| **<25 names** | Poor | Excellent | Prototyping only |
-| **25-50 names** | Fair | Excellent | Simple applications |
-| **50-200 names** | Good | Very Good | **Recommended minimum** |
-| **200-1000 names** | Excellent | Good | **Optimal range** |
-| **1000+ names** | Excellent | Moderate | Specialized applications |
-| **5000+ names** | Diminishing returns | Poor | Overkill for most use cases |
-
-**Quality vs Performance Trade-offs:**
-- **Small datasets (<50)**: Fast but repetitive output, limited variety
-- **Medium datasets (50-500)**: Balanced performance and creativity
-- **Large datasets (1000+)**: Maximum variety but higher memory usage
-- **Order interaction**: Higher orders need proportionally larger datasets
-
-## Testing Example
-
-### Unit Test Example
-
-```gdscript
-func test_generator_basic_functionality():
-    var gen = MarkovNameGenerator.new("res://test_data/")
-    assert(gen.load_dataset("test_names"))
-    
-    gen.train(2)
-    assert(gen.is_trained())
-    
-    var name = gen.generate_name(10)
-    assert(name.length() > 0 and name.length() <= 10)
-```
-
 
 ## Troubleshooting
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Empty generation | Insufficient training data | Increase dataset size (>25 samples) |
-| Identical outputs | Deterministic seed reuse | Randomize seed or call `rng.randomize()` |
-| JSON parse errors | Malformed dataset files | Validate JSON syntax and array structure |
-| Memory usage | Large datasets with high n_length | Reduce n-gram n_length or dataset size |
+| Issue             | Cause                          | Solution                             |
+| ----------------- | ------------------------------ | ------------------------------------ |
+| Empty output      | Insufficient training data     | Add more entries to the dataset      |
+| Identical output  | Fixed seed used                | Use `rng.randomize()` or change seed |
+| JSON parse error  | Malformed dataset              | Validate JSON syntax                 |
+| High memory usage | Large dataset or high n-gram   | Reduce n-gram size or dataset        |
+| Load failed       | File not found or incompatible | Check file path and format           |
 
 ## License
 
-This project is licensed under the MIT License. See LICENSE file for complete terms.
+MIT License — free use and modification with attribution.
+
+---
+
+> Last updated: v1.1.0 — added support for persistent models, internal statistics, and advanced n-grams

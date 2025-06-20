@@ -12,7 +12,7 @@ extends RefCounted
 # You can also use it as a Global Singleton if you need only one instance
 class_name MarkovNameGenerator
 
-static var version := "0.0.1"
+static var version := "0.1.0"
 
 # String variable to store the file system path where dataset files are located
 # This path will be used to construct full file paths when loading JSON datasets
