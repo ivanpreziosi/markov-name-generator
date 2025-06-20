@@ -4,8 +4,7 @@
 # to learn transition probabilities between character 
 # sequences (n-grams). Once trained, the class can generate 
 # new realistic names that follow statistical patterns in the 
-# training dataset, using a probabilistic approach to create 
-# believable variations of the original names.
+# training dataset.
 extends RefCounted
 
 # Should be instantiated from other scripts.
