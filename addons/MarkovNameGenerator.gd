@@ -16,6 +16,7 @@ static var version := "0.0.1"
 
 # String variable to store the file system path where dataset files are located
 # This path will be used to construct full file paths when loading JSON datasets
+# if left empty you can still load files by providing full path in load_dataset (no extension!!)
 var path := ""
 
 # Dictionary that stores the Markov chain relationships
@@ -25,7 +26,7 @@ var path := ""
 var chain := {}
 
 # Integer defining the length of character sequences (n-grams) used in the chain
-# n_length = 2 means we use 2-character sequences like "th", "he", "ar"
+# n_length = 2 means we will use 2-character sequences like "th", "he", "ar"
 # Higher values create more coherent but less varied names
 var n_length := 2
 
@@ -44,13 +45,15 @@ var rng := RandomNumberGenerator.new()
 
 # Constructor function that initializes the generator with a dataset directory path
 # @param dataset_path: String path to the folder containing JSON dataset files
-func _init(dataset_path: String):
-	# Store the provided path for later use when loading dataset files
-	path = dataset_path
+func _init():
 	# Initialize the random number generator with a time-based seed
 	# This ensures different random sequences each time the program runs
 	rng.randomize()
 
+# Store the provided path for later use when loading dataset files
+func set_dataset_path(data_path:String):
+	path = data_path
+	
 # Sets a specific seed for the random number generator
 # @param seed: Integer seed value for deterministic random number generation
 # Useful for testing, debugging, or when reproducible results are needed
