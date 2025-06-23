@@ -211,15 +211,6 @@ func _generate_single_name(max_length: int = 12) -> String:
 	# This produces a properly formatted name ready for use
 	return result.trim_prefix("^").capitalize()
 
-func get_statistics() -> Dictionary:
-	return {
-		"is_trained": is_trained(),
-		"total_ngrams": chain.size(),
-		"starters_count": starters.size(),
-		"n_length": n_length,
-		"dataset_size": dataset.size()
-	}
-
 # Save a trained model as a JSON text file
 # @param filepath: String path of the saved file
 # @return: Boolean indicating success or failure of the save operation
