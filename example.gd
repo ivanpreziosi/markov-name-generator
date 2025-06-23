@@ -15,8 +15,8 @@ func _ready()->void:
 	# train the model
 	stars_name_generator.train()
 	
-	# print cool statistics
-	print(stars_name_generator.get_statistics())
+	# print cool model statistics
+	print(stars_name_generator.get_model_statistics())
 	
 	#generate a batch of 20 names to test it out
 	for _ii in range(20):
