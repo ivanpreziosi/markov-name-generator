@@ -1,3 +1,4 @@
+
 # MarkovNameGenerator
 
 A robust GDScript implementation of a Markov chain-based name generator for Godot 4.x. This class analyzes existing name datasets to learn statistical patterns and generates new, realistic names that follow the same linguistic characteristics as the training data.
@@ -63,7 +64,7 @@ Datasets should be JSON files containing arrays of strings:
 | `dataset` | Array | Currently loaded dataset |
 | `rng` | RandomNumberGenerator | Internal RNG instance |
 
-### Static Properties
+## Static Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -71,25 +72,32 @@ Datasets should be JSON files containing arrays of strings:
 
 ### Methods
 
-#### Constructor and Configuration
+### *Constructor and Configuration*
 
+#### new()
 ```gdscript
 MarkovNameGenerator.new() -> MarkovNameGenerator
 ```
 Creates a new generator instance with randomized seed.
 
+---
+#### set_dataset_path(data_path: String)
 ```gdscript
 set_dataset_path(data_path: String) -> void
 ```
 Sets the base path for dataset files.
 
+---
+#### set_seed(seed: int) 
 ```gdscript
 set_seed(seed: int) -> void
 ```
 Sets a specific seed for deterministic generation.
 
-#### Dataset Management
+### *Dataset Management*
 
+---
+#### load_dataset(dataset_name: String)
 ```gdscript
 load_dataset(dataset_name: String) -> bool
 ```
@@ -106,8 +114,10 @@ else:
 	print("Failed to load dataset")
 ```
 
-#### Training
+### *Training*
 
+---
+#### train(n_gram_len: int = 2)
 ```gdscript
 train(n_gram_len: int = 2) -> void
 ```
@@ -122,8 +132,10 @@ Trains the Markov chain on the loaded dataset.
 - **3**: More coherent, less variety
 - **4+**: High coherence, limited variety
 
-#### Generation
+### *Generation*
+---
 
+#### generate_name(max_length: int = 12, min_length: int = 3)
 ```gdscript
 generate_name(max_length: int = 12, min_length: int = 3) -> String
 ```
@@ -135,13 +147,18 @@ Generates a new name using the trained model.
 
 **Returns:** Properly capitalized name string
 
+---
+
+#### _generate_single_name(max_length: int = 12)
 ```gdscript
 _generate_single_name(max_length: int = 12) -> String
 ```
 Internal method for single generation attempt without retry logic.
 
-#### Model Persistence
+### Model Persistence
+---
 
+#### save_trained_model(filepath: String)
 ```gdscript
 save_trained_model(filepath: String) -> bool
 ```
@@ -155,7 +172,9 @@ Saves the trained model to a JSON file.
 if generator.save_trained_model("user://models/fantasy_model.json"):
 	print("Model saved successfully")
 ```
+---
 
+#### load_trained_model(filepath: String)
 ```gdscript
 load_trained_model(filepath: String) -> bool
 ```
@@ -172,13 +191,18 @@ if generator.load_trained_model("user://models/fantasy_model.json"):
 	print("Generated: " + name)
 ```
 
-#### Utility Methods
+### Utility Methods
+---
 
+#### is_trained()
 ```gdscript
 is_trained() -> bool
 ```
 Checks if the model has been trained and is ready for generation.
 
+---
+
+#### get_model_statistics()
 ```gdscript
 get_model_statistics() -> Dictionary
 ```
