@@ -180,22 +180,6 @@ is_trained() -> bool
 Checks if the model has been trained and is ready for generation.
 
 ```gdscript
-get_statistics() -> Dictionary
-```
-Returns basic training statistics.
-
-**Returns:**
-```gdscript
-{
-	"is_trained": bool,
-	"total_ngrams": int,
-	"starters_count": int,
-	"n_length": int,
-	"dataset_size": int
-}
-```
-
-```gdscript
 get_model_statistics() -> Dictionary
 ```
 Returns detailed model statistics including transition averages.
