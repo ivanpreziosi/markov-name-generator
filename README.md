@@ -316,6 +316,12 @@ if not generator.is_trained():
 - **Model Size**: Trained models scale with dataset size and n-gram length
 - **Generation Speed**: Typically very fast (< 1ms per name)
 
+## Using it as a Godot Singleton Autoload
+
+It's possible to load this class also as a Godot Singleton Autoload. It could be useful if you need multiple generators at once and you want to access them as a Global Autoload for simplicity sake.
+Even if this is possible with minimal modifications to the class (you only have to modify the class to have it extending the Node class instead ff the RefCounted), instantiating it as a Node in the three may be more impactfull on performances, since - in my understanding of Godot's internal structure - the Node object has more overhead in terms of resources. 
+
+
 ## File Structure
 
 ```
