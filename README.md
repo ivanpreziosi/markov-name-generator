@@ -42,12 +42,16 @@ Datasets should be JSON files containing arrays of strings:
 
 ```json
 [
-	"Gandalf",
-	"Aragorn",
-	"Legolas",
-	"Gimli",
-	"Boromir",
-	"Frodo"
+	"Abaddon",
+	"Asmodeus",
+	"Belial",
+	"Baal",
+	"Astaroth",
+	"Beelzebub",
+	"Leviathan",
+	"Azazel",
+	"Lucifuge",
+	"Samael"
 ]
 ```
 
