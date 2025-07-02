@@ -12,7 +12,7 @@ extends RefCounted
 class_name MarkovNameGenerator
 
 # Current version of the class (for tracking changes and compatibility)
-static var version := "0.1.0"
+static var version := "0.1.1"
 
 # Path to the directory where the dataset files (JSON format) are stored.
 # This path is prepended when loading datasets by name.
