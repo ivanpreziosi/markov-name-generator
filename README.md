@@ -1,7 +1,7 @@
 
 # MarkovNameGenerator
-![MarkovNameGenerator Logo](https://github.com/ivanpreziosi/markov-name-generator/blob/main/markov_name_generator_logo.png?raw=true)
-A robust GDScript implementation of a Markov chain-based name generator for Godot 4.x. This class analyzes existing name datasets to learn statistical patterns and generates new, realistic names that follow the same linguistic characteristics as the training data.
+<a href="https://en.wikipedia.org/wiki/Andrey_Markov" target="_blank"><img align="right" src="https://github.com/ivanpreziosi/markov-name-generator/blob/main/Andrej_Markov.jpg?raw=true" alt="Markov" width="120"></a>A robust GDScript implementation of a Markov chain-based name generator for Godot 4.x. This class analyzes existing name datasets to learn statistical patterns and generates new, realistic names that follow the same linguistic characteristics as the training data.
+
 
 ## Features
 
